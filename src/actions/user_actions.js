@@ -1,4 +1,5 @@
 import axios from 'axios';
+import qs from 'qs';
 import {
     LOGIN_USER,
     REGISTER_USER,
@@ -9,31 +10,58 @@ import {
     REMOVE_CART_ITEM,
     ON_SUCCESS_BUY
 } from './types';
-import { USER_SERVER } from '../components/Config.js';
+import { USER_SERVER ,
+    KEYCLOAK_REALM,
+    KEYCLOAK_CLIENTID,
+} from '../components/Config.js';
 
+ 
+/* 
+회원가입
+*/
 export function registerUser(dataToSubmit) {
     const request = axios.post(`${USER_SERVER}/register`, dataToSubmit)
-        .then(response => response.data);
-
+        .then(response => {
+            
+            return response.data;
+        });
     return {
         type: REGISTER_USER,
         payload: request
     }
 }
 
+/* 
+keycloak  로그인 > access_token 및 user_info
+*/
 export function loginUser(dataToSubmit) {
-    const request = axios.post(`${USER_SERVER}/login`, dataToSubmit)
-        .then(response => response.data);
-
+    const request = axios.post(`${USER_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`
+                                ,qs.stringify(dataToSubmit))
+        .then(response => {  return response.data});
     return {
         type: LOGIN_USER,
         payload: request
     }
 }
 
+/* 
+keycloak refresh token
+*/
 export function auth() {
-    const request = axios.get(`${USER_SERVER}/auth`)
-        .then(response => response.data);
+
+    const request = axios.post(`${USER_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`,
+                    qs.stringify({
+                        client_id: KEYCLOAK_CLIENTID,
+                        grant_type: 'refresh_token',
+                        refresh_token: localStorage.getItem('refresh_token')
+                    }))
+                    .then(response => {
+                        
+                        localStorage.setItem('jwt_token',response.data.access_token);
+                        localStorage.setItem('refresh_token',response.data.refresh_token);
+
+                        return response.data;
+                    });
 
     return {
         type: AUTH_USER,
@@ -41,15 +69,16 @@ export function auth() {
     }
 }
 
-export function logoutUser() {
-    const request = axios.get(`${USER_SERVER}/logout`)
-        .then(response => response.data);
+// export function auth() {
+//     const request = axios.get(`${USER_SERVER}/auth`)
+//         .then(response => response.data);
 
-    return {
-        type: LOGOUT_USER,
-        payload: request
-    }
-}
+//     return {
+//         type: AUTH_USER,
+//         payload: request
+//     }
+// }
+
 
 
 export function addToCart(id) {
@@ -58,7 +87,6 @@ export function addToCart(id) {
     }
     const request = axios.post(`${USER_SERVER}/addToCart`, body)
         .then(response => response.data);
-
     return {
         type: ADD_TO_CART,
         payload: request
@@ -112,8 +140,6 @@ export function removeCartItem(productId) {
     }
 }
 
-
-
 export function onSuccessBuy(data) {
 
     const request = axios.post(`/api/users/successBuy`, data)
@@ -124,17 +150,3 @@ export function onSuccessBuy(data) {
         payload: request
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

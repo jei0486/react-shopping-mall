@@ -3,17 +3,24 @@ import axios from 'axios';
 import ProductImage from './Sections/ProductImage';
 import ProductInfo from './Sections/ProductInfo';
 import { Row, Col } from 'antd';
+import { useParams } from 'react-router-dom'
+import { auth } from '../../actions/user_actions';
+import { useDispatch } from 'react-redux';
 
 function DetailProduct(props) {
 
-    const productId = props.match.params.productId
-
+    
+    //const productId = props.match.params.productId
+    const {productId} = useParams()
     const [Product, setProduct] = useState({})
 
+    const dispatch = useDispatch();
     useEffect(() => {
-        axios.get(`/api/product/products_by_id?id=${productId}&type=single`)
+        dispatch(auth());
+
+        axios.get(`/product/product/${productId}`)
             .then(response => {
-                setProduct(response.data[0])
+                setProduct(response.data)
             })
             .catch(err => alert(err))
     }, [])
@@ -24,7 +31,7 @@ function DetailProduct(props) {
         <div style={{ width: '100%', padding: '3rem 4rem' }}>
 
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <h1>{Product.title}</h1>
+                <h1>{Product.name}</h1>
             </div>
 
             <br />

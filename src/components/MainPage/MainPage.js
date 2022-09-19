@@ -7,6 +7,7 @@ import Checkbox from './Sections/CheckBox';
 import Radiobox from './Sections/RadioBox';
 import SearchFeature from './Sections/SearchFeature';
 import { category, price } from './Sections/Datas';
+import { ShoppingCartOutlined } from '@ant-design/icons';
 
 function MainPage() {
 
@@ -22,32 +23,21 @@ function MainPage() {
 
     useEffect(() => {
 
-        let body = {
-            skip: Skip,
-            limit: Limit
-        }
-
-        getProducts(body)
+        getProducts()
 
     }, [])
 
-    const getProducts = (body) => {
-        axios.post('/api/product/products', body)
+    const getProducts = () => {
+        axios.get('/product/products')
             .then(response => {
-                if (response.data.success) {
-                    if (body.loadMore) {
-                        setProducts([...Products, ...response.data.productInfo])
-                    } else {
-                        setProducts(response.data.productInfo)
-                    }
-                    setPostSize(response.data.postSize)
+                if (response.data != null && response.data.length > 0) {
+                    setProducts(response.data)
+                    //setPostSize(response.data.postSize)
                 } else {
                     alert(" 상품들을 가져오는데 실패 했습니다.")
                 }
             })
     }
-
-
 
 
     const loadMoreHanlder = () => {
@@ -69,11 +59,11 @@ function MainPage() {
 
         return <Col lg={6} md={8} xs={24} key={index}>
             <Card
-                cover={<a href={`/product/${product._id}`} ><ImageSlider images={product.images} /></a>}
+                cover={<a href={`/productDetail/${product.id}`} ><ImageSlider images={product.image} /></a>}
             >
                 <Meta
-                    title={product.title}
-                    description={`$${product.price}`}
+                    title={product.name}
+                    description={`${product.unitPrice} 원`}
                 />
             </Card>
         </Col>
@@ -142,7 +132,7 @@ function MainPage() {
         <div style={{ width: '75%', margin: '3rem auto' }}>
 
             <div style={{ textAlign: 'center' }}>
-                {/* <h2>Let's Travel Anywhere <Icon type="rocket" /> </h2> */}
+                <h2> React Shoppingmall with Axon <ShoppingCartOutlined /> </h2>
             </div>
 
             {/* Filter */}
@@ -157,10 +147,6 @@ function MainPage() {
                     <Radiobox list={price} handleFilters={filters => handleFilters(filters, "price")} />
                 </Col>
             </Row>
-
-
-
-
 
             {/* Search */}
 

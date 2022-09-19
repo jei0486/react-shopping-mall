@@ -1,15 +1,19 @@
 import React, { useState } from "react";
-//import { withRouter } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { loginUser } from "../actions/user_actions";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Form, Input, Button, Checkbox, Typography } from 'antd';
 import { useDispatch } from "react-redux";
-import Icon from "@ant-design/icons";
+import {UserOutlined, LockOutlined,RightOutlined} from "@ant-design/icons";
+import {KEYCLOAK_CLIENTID} from './Config.js';
+import axios from 'axios';
 
 const { Title } = Typography;
 
 function LoginPage(props) {
+
+  let navigate = useNavigate();
 
   const dispatch = useDispatch();
   const rememberMeChecked = localStorage.getItem("rememberMe") ? true : false;
@@ -21,45 +25,68 @@ function LoginPage(props) {
     setRememberMe(!rememberMe)
   };
 
-  const initialEmail = localStorage.getItem("rememberMe") ? localStorage.getItem("rememberMe") : '';
+  const initialId = localStorage.getItem("rememberMe") ? localStorage.getItem("rememberMe") : '';
 
   return (
     <Formik
       initialValues={{
-        email: initialEmail,
+        id: initialId,
         password: '',
       }}
       validationSchema={Yup.object().shape({
-        email: Yup.string()
-          .email('Email is invalid')
-          .required('Email is required'),
+        id: Yup.string()
+          .required('Id is required'),
         password: Yup.string()
           .min(6, 'Password must be at least 6 characters')
           .required('Password is required'),
       })}
+
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
           let dataToSubmit = {
-            email: values.email,
+            //id: values.id,
+            //password: values.password
+
+            // for keycloak token login
+            client_id: KEYCLOAK_CLIENTID,
+            grant_type: 'password',
+            username: values.id,
             password: values.password
           };
 
           dispatch(loginUser(dataToSubmit))
             .then(response => {
-              if (response.payload.loginSuccess) {
-                window.localStorage.setItem('userId', response.payload.userId);
+
+              console.log(response);
+              if (response.payload && response.payload.access_token) {
+                window.localStorage.setItem('userId', values.id);
+
                 if (rememberMe === true) {
                   window.localStorage.setItem('rememberMe', values.id);
                 } else {
                   localStorage.removeItem('rememberMe');
                 }
-                props.history.push("/");
+
+                // react router v6 에서 바뀜 
+                // props.history.push("/");
+
+              //value 0 -> header, 1 -> payload, 2 -> VERIFY SIGNATURE
+              //let base64Payload = response.data.payload.access_token.split('.')[1];
+
+                // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
+                window.localStorage.setItem('jwt_token', response.payload.access_token);
+                window.localStorage.setItem('refresh_token', response.payload.refresh_token);
+                axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('jwt_token')}`
+                navigate("/");
               } else {
                 setFormErrorMessage('Check out your Account or Password again')
               }
             })
             .catch(err => {
-              setFormErrorMessage('Check out your Account or Password again')
+              console.log(err);
+              console.log(err.name + ": " + err.message);
+              setFormErrorMessage('Check out your Account or Password again');
+
               setTimeout(() => {
                 setFormErrorMessage("")
               }, 3000);
@@ -80,6 +107,7 @@ function LoginPage(props) {
           handleSubmit,
           handleReset,
         } = props;
+
         return (
           <div className="app">
 
@@ -88,26 +116,26 @@ function LoginPage(props) {
 
               <Form.Item required>
                 <Input
-                  id="email"
-                  prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                  placeholder="Enter your email"
-                  type="email"
-                  value={values.email}
+                  id="id"
+                  prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+                  placeholder="Enter your id"
+                  type="text"
+                  value={values.id}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   className={
-                    errors.email && touched.email ? 'text-input error' : 'text-input'
+                    errors.id && touched.id ? 'text-input error' : 'text-input'
                   }
                 />
-                {errors.email && touched.email && (
-                  <div className="input-feedback">{errors.email}</div>
+
+                {errors.id && touched.id && (
+                  <div className="input-feedback">{errors.id}</div>
                 )}
               </Form.Item>
-
               <Form.Item required>
                 <Input
                   id="password"
-                  prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                  prefix={<LockOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                   placeholder="Enter your password"
                   type="password"
                   value={values.password}
@@ -121,7 +149,6 @@ function LoginPage(props) {
                   <div className="input-feedback">{errors.password}</div>
                 )}
               </Form.Item>
-
               {formErrorMessage && (
                 <label ><p style={{ color: '#ff0000bf', fontSize: '0.7rem', border: '1px solid', padding: '1rem', borderRadius: '10px' }}>{formErrorMessage}</p></label>
               )}
@@ -129,14 +156,15 @@ function LoginPage(props) {
               <Form.Item>
                 <Checkbox id="rememberMe" onChange={handleRememberMe} checked={rememberMe} >Remember me</Checkbox>
                 <a className="login-form-forgot" href="/reset_user" style={{ float: 'right' }}>
-                  forgot password
+                  비밀번호 찾기
                   </a>
                 <div>
                   <Button type="primary" htmlType="submit" className="login-form-button" style={{ minWidth: '100%' }} disabled={isSubmitting} onSubmit={handleSubmit}>
-                    Log in
+                    로그인
                 </Button>
                 </div>
-                 Or <a href="/register">register now!</a>
+                
+                <a href="/register">회원가입 <RightOutlined /> </a>
               </Form.Item>
             </form>
           </div>
@@ -146,5 +174,4 @@ function LoginPage(props) {
   );
 };
 
-//export default withRouter(LoginPage);
 export default LoginPage;

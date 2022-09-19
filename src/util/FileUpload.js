@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Dropzone from 'react-dropzone'
-import Icon from '@ant-design/icons';
+import {PlusOutlined} from '@ant-design/icons';
 import axios from 'axios';
 
 
@@ -16,7 +16,7 @@ function FileUpload(props) {
         }
         formData.append("file", files[0])
 
-        axios.post('/api/product/image', formData, config)
+        axios.post('/product/image', formData, config)
             .then(response => {
                 if (response.data.success) {
                     setImages([...Images, response.data.filePath])
@@ -52,7 +52,7 @@ function FileUpload(props) {
                         }}
                         {...getRootProps()}>
                         <input {...getInputProps()} />
-                        <Icon type="plus" style={{ fontSize: '3rem' }} />
+                       <PlusOutlined  style={{ fontSize: '3rem' }}/>
                     </div>
                 )}
             </Dropzone>
@@ -62,7 +62,7 @@ function FileUpload(props) {
                 {Images.map((image, index) => (
                     <div onClick={() => deleteHandler(image)} key={index}>
                         <img style={{ minWidth: '300px', width: '300px', height: '240px' }}
-                            src={`http://localhost:5000/${image}`}
+                            src={`${image}`}
                         />
                     </div>
                 ))}
