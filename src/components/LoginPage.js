@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import { loginUser } from "../actions/user_actions";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -11,7 +11,7 @@ import axios from 'axios';
 
 const { Title } = Typography;
 
-function LoginPage(props) {
+function LoginPage() {
 
   let navigate = useNavigate();
 
@@ -57,7 +57,6 @@ function LoginPage(props) {
           dispatch(loginUser(dataToSubmit))
             .then(response => {
 
-              console.log(response);
               if (response.payload && response.payload.access_token) {
                 window.localStorage.setItem('userId', values.id);
 
@@ -74,8 +73,7 @@ function LoginPage(props) {
               //let base64Payload = response.data.payload.access_token.split('.')[1];
 
                 // API 요청하는 콜마다 헤더에 accessToken 담아 보내도록 설정
-                window.localStorage.setItem('jwt_token', response.payload.access_token);
-                window.localStorage.setItem('refresh_token', response.payload.refresh_token);
+
                 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('jwt_token')}`
                 navigate("/");
               } else {
@@ -155,16 +153,16 @@ function LoginPage(props) {
 
               <Form.Item>
                 <Checkbox id="rememberMe" onChange={handleRememberMe} checked={rememberMe} >Remember me</Checkbox>
-                <a className="login-form-forgot" href="/reset_user" style={{ float: 'right' }}>
+                <Link className="login-form-forgot" to="/reset_user" style={{ float: 'right' }}>
                   비밀번호 찾기
-                  </a>
+                </Link>
                 <div>
                   <Button type="primary" htmlType="submit" className="login-form-button" style={{ minWidth: '100%' }} disabled={isSubmitting} onSubmit={handleSubmit}>
                     로그인
                 </Button>
                 </div>
                 
-                <a href="/register">회원가입 <RightOutlined /> </a>
+                <Link to="/register">회원가입 <RightOutlined /> </Link>
               </Form.Item>
             </form>
           </div>

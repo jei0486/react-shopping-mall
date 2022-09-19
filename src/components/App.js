@@ -12,7 +12,7 @@ import Footer from "./Footer.js"
 import UploadProduct from './UploadProduct'
 import DetailProduct from './DetailProduct/DetailProduct.js';
 import OrderHistory from './OrderHistory.js';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-//import CartPage from './CartPage/CartPage';
+import CartPage from './CartPage/CartPage';
 
 
         //null   Anyone Can go inside
@@ -41,7 +41,7 @@ function App() {
            <Route exact path="/history" element={<OrderHistory/>} />
            <Route exact path="/goProduct/upload" element={<UploadProduct/>} />
            <Route exact path="/productDetail/:productId"   element={<DetailProduct/>} />
-           {/* <Route exact path="/user/cart" element={<CartPage/>} /> */}
+           <Route exact path="/user/cart" element={<CartPage/>} />
          </Routes>
        </div>
        <Footer />

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import {Link} from 'react-router-dom';
 import axios from "axios";
 import { Col, Card, Row, Carousel } from 'antd';
 import Meta from 'antd/lib/card/Meta';
@@ -59,7 +60,7 @@ function MainPage() {
 
         return <Col lg={6} md={8} xs={24} key={index}>
             <Card
-                cover={<a href={`/productDetail/${product.id}`} ><ImageSlider images={product.image} /></a>}
+                cover={<Link to={`/productDetail/${product.id}`} ><ImageSlider images={product.image} /></Link>}
             >
                 <Meta
                     title={product.name}

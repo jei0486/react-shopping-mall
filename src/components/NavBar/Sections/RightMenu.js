@@ -1,9 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
 import { Menu, Badge } from 'antd';
-import axios from 'axios';
-import { USER_SERVER } from '../../Config';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , Link } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import {ShoppingCartOutlined} from '@ant-design/icons';
 import {KEYCLOAK_CLIENTID} from '../../Config';
@@ -28,6 +26,8 @@ function RightMenu(props) {
   
   const logoutHandler = () => {
 
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('refresh_token');
     navigate("/login");
 
     /* 
@@ -51,10 +51,10 @@ function RightMenu(props) {
     return (
       <Menu mode={props.mode}>
         <Menu.Item key="mail">
-          <a href="/login">login</a>
+          <Link to="/login">login</Link>
         </Menu.Item>
         <Menu.Item key="app">
-          <a href="/register">register</a>
+          <Link to="/register">register</Link>
         </Menu.Item>
       </Menu>
     )
@@ -63,11 +63,11 @@ function RightMenu(props) {
     return (
       <Menu mode={props.mode}>
         <Menu.Item key="history">
-          <a href="/admin/history">OrderHistory</a>
+          <Link to="/admin/history">OrderHistory</Link>
         </Menu.Item>
 
         <Menu.Item key="upload">
-            <a href="/goProduct/upload">Upload</a>
+            <Link to="/goProduct/upload">Upload</Link>
         </Menu.Item>
 
         <Menu.Item key="logout">
@@ -81,19 +81,16 @@ function RightMenu(props) {
     return (
       <Menu mode={props.mode}>
         <Menu.Item key="history">
-          <a href="/history">OrderHistory</a>
+          <Link to="/history">OrderHistory</Link>
         </Menu.Item>
 
-        <Menu.Item key="cart" style={{ paddingBottom: 3 }}>
-            <a href="/user/cart" className="head-example" >
-              Cart
-            </a>
-          {/* <Badge count={user.userData && user.userData.cart.length}>
-            <a href="/user/cart" className="head-example" style={{ marginRight: -22, color: '#667777' }} >
-             <ShoppingCartOutlined style={{ fontSize: 30, marginBottom: 3 }} /> Cart
-            </a>
-          </Badge> */}
-        </Menu.Item>
+      <Menu.Item key="cart" style={{ paddingBottom: 3 }}>
+        <Badge count={user.cart && user.cart.length}>
+            <Link to="/user/cart" className="head-example" style={{ marginRight: -22, color: '#667777' }} >
+             <ShoppingCartOutlined style={{ fontSize: 30, marginBottom: 3 }} />
+            </Link>
+        </Badge>
+      </Menu.Item>
 
         <Menu.Item key="logout">
           <a onClick={logoutHandler}>Logout</a>

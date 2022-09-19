@@ -1,38 +1,40 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux';
-import { getCartItems, removeCartItem, onSuccessBuy } from '../../../actions/user_actions';
+import { useDispatch ,useSelector} from 'react-redux';
+import { getCartItems, removeCartItem, onSuccessBuy } from '../../actions/user_actions';
 import UserCardBlock from './Sections/UserCardBlock';
 import { Empty, Result } from 'antd';
 //import Paypal from '../../util/Paypal';
 
-function CartPage(props) {
+function CartPage() {
     const dispatch = useDispatch();
-
+    const user = useSelector(state => state.user);
     const [Total, setTotal] = useState(0)
     const [ShowTotal, setShowTotal] = useState(false)
     const [ShowSuccess, setShowSuccess] = useState(false)
 
     useEffect(() => {
 
+        console.log(user.cart);
         let cartItems = []
         //리덕스 User state안에 cart 안에 상품이 들어있는지 확인 
-        if (props.user.userData && props.user.userData.cart) {
-            if (props.user.userData.cart.length > 0) {
-                props.user.userData.cart.forEach(item => {
+        if (user && user.cart) {
+            if (user.cart.length > 0) {
+                user.cart.forEach(item => {
                     cartItems.push(item.id)
+                    calculateTotal(user.cart)
                 })
-                dispatch(getCartItems(cartItems, props.user.userData.cart))
-                    .then(response => { calculateTotal(response.payload) })
+
+                
             }
         }
-    }, [props.user.userData])
+    }, [user.cart])
 
 
     let calculateTotal = (cartDetail) => {
         let total = 0;
 
         cartDetail.map(item => {
-            total += parseInt(item.price, 10) * item.quantity
+            total += parseInt(item.unitPrice, 10) * item.quantity
         })
 
         setTotal(total)
@@ -56,7 +58,7 @@ function CartPage(props) {
     const transactionSuccess = (data) => {
         dispatch(onSuccessBuy({
             paymentData: data,
-            cartDetail: props.user.cartDetail
+            cartDetail: user.cartDetail
         }))
             .then(response => {
                 if (response.payload.success) {
@@ -72,12 +74,12 @@ function CartPage(props) {
             <h1>My Cart</h1>
 
             <div>
-                <UserCardBlock products={props.user.cartDetail} removeItem={removeFromCart} />
+                <UserCardBlock products={user.cart} removeItem={removeFromCart} />
             </div>
 
             {ShowTotal ?
                 <div style={{ marginTop: '3rem' }}>
-                    <h2>Total Amount: ${Total}</h2>
+                    <h2>총 : {Total} 원</h2>
                 </div>
                 : ShowSuccess ?
                     <Result
@@ -92,7 +94,9 @@ function CartPage(props) {
             }
 
 
-            {/* {ShowTotal &&
+           {ShowTotal}
+            
+{/*            {ShowTotal &&
                 <Paypal
                     total={Total}
                     onSuccess={transactionSuccess}

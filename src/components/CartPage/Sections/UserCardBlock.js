@@ -3,6 +3,8 @@ import "./UserCardBlock.css"
 
 function UserCardBlock(props) {
 
+    console.log("UserCardBlock");
+    console.log(props);
     const renderCartImage = (images) => {
         if (images.length > 0) {
             let image = images[0]
@@ -10,23 +12,23 @@ function UserCardBlock(props) {
         }
     }
 
-
     const renderItems = () => (
         props.products && props.products.map((product, index) => (
             <tr key={index}>
                 <td>
-                    <img style={{ width: '70px' }} alt="product"
+                    <img style={{ width: '70px' }} 
+                        alt="product"
                         src={renderCartImage(product.image)} />
                 </td>
                 <td>
-                    {product.quantity} EA
+                    {product.quantity} 개
                 </td>
                 <td>
-                    $ {product.unitPrice}
+                    {product.unitPrice} 원
                 </td>
                 <td>
                     <button onClick={() => props.removeItem(product.id)}>
-                        Remove 
+                        삭제 
                     </button>
                 </td>
             </tr>

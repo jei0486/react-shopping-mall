@@ -37,7 +37,10 @@ keycloak  로그인 > access_token 및 user_info
 export function loginUser(dataToSubmit) {
     const request = axios.post(`${USER_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`
                                 ,qs.stringify(dataToSubmit))
-        .then(response => {  return response.data});
+        .then(response => {  
+            window.localStorage.setItem('jwt_token', response.data.access_token);
+            window.localStorage.setItem('refresh_token', response.data.refresh_token);
+            return response.data});
     return {
         type: LOGIN_USER,
         payload: request
@@ -81,18 +84,38 @@ export function auth() {
 
 
 
-export function addToCart(id) {
-    let body = {
-        productId: id
-    }
-    const request = axios.post(`${USER_SERVER}/addToCart`, body)
-        .then(response => response.data);
+// export function addToCart(id) {
+//     let body = {
+//         productId: id
+//     }
+//     const request = axios.post(`${USER_SERVER}/addToCart`, body)
+//         .then(response => response.data);
+//     return {
+//         type: ADD_TO_CART,
+//         payload: request
+//     }
+// }
+
+// 장바구니 담기
+// export function addToCart(item) {
+//     console.log("action");
+//     console.log(item);
+//     return {
+
+    // "ADD_TO_CART"    (X)
+    // ADD_TO_CART      (O)
+
+//         type: "ADD_TO_CART",
+//         payload: item
+//     }
+// }
+
+export const addToCart = (data) => {
     return {
         type: ADD_TO_CART,
-        payload: request
-    }
+        data
+     }
 }
-
 
 export function getCartItems(cartItems, userCart) {
 

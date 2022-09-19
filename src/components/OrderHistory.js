@@ -7,6 +7,7 @@ function OrderHistory() {
     const [Order , setOrder] = useState([{}]);
     const user = useSelector(state => state.user);
 
+    // TODO reducer  수정필요
     console.log(user.userData);
     
     // axios.get('https://example.com/getSomething', {
